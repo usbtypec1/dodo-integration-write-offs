@@ -3,13 +3,14 @@ import { IngredientWriteOffsResponse } from "~/server/types/write-offs";
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const date = query.date as string | undefined; // expected in 'YYYY-MM-DD' format
+  const unitId = query.unitId as string | undefined
 
   const runtimeConfig = useRuntimeConfig();
   const responseData = await $fetch<IngredientWriteOffsResponse>(
     "/write-offs/",
     {
       baseURL: runtimeConfig.apiBaseUrl,
-      query: { date },
+      query: { date, unit_id: unitId },
     }
   );
 
