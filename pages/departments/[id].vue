@@ -116,6 +116,9 @@ import type { Ingredient } from "~/types/ingredients";
 const { notificationOccurred } = useHapticFeedback();
 const { showAlert, showConfirm } = usePopup();
 
+const route = useRoute();
+const departmentId = route.params.id as string;
+
 const isWriteOffDialogVisible = ref<boolean>(false);
 
 const date = ref<Date>(new Date());
