@@ -11,6 +11,17 @@ export default defineNuxtConfig({
       theme: {
         preset: Aura,
       },
+      locale: {
+        dayNames: [
+          "Воскресенье",
+          "Понедельник",
+          "Вторник",
+          "Среда",
+          "Четверг",
+          "Пятница",
+          "Суббота",
+        ],
+      },
     },
   },
   app: {
@@ -25,6 +36,6 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  css: ["~/assets/css/main.css"],
+  css: ["~/assets/css/main.css", "primeicons/primeicons.css"],
   ssr: false,
 });
