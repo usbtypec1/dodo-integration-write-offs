@@ -18,14 +18,17 @@
     >
       <template #header>
         <section class="flex items-center justify-between md:justify-end gap-2">
-          <i
-            class="pi"
-            :class="[isWrittenOffVisible ? 'pi-eye' : 'pi-eye-slash']"
-          >
-          </i>
-          <label for="isWrittenOffVisible" class="font-semibold">
-            Показать списанные
-          </label>
+          <div class="flex gap-x-4 items-center">
+            <i
+              class="pi"
+              :class="[isWrittenOffVisible ? 'pi-eye' : 'pi-eye-slash']"
+            >
+            </i>
+            <label for="isWrittenOffVisible" class="font-semibold">
+              Показать списанные
+            </label>
+          </div>
+
           <ToggleSwitch
             input-id="isWrittenOffVisible"
             v-model="isWrittenOffVisible"
@@ -70,9 +73,18 @@
         </section>
       </template>
       <template #footer v-if="selectedIngredients.length > 0">
-        <p class="text-start">
-          Выбрано {{ selectedIngredients.length }} ингредиентов
-        </p>
+        <section
+          class="flex md:flex-row flex-col justify-between items-center gap-2"
+        >
+          <span> Выбрано {{ selectedIngredients.length }} ингредиентов </span>
+          <Button
+            @click="onResetSelectedIngredients"
+            icon="pi pi-times"
+            label="Сбросить"
+            class="md:w-auto w-full"
+            outlined
+          />
+        </section>
       </template>
     </DataTable>
     <WriteOffCreateDialog
@@ -151,6 +163,10 @@ const ingredientWriteOffs = computed((): IngredientWriteOff[] => {
 });
 
 const selectedIngredients = ref([]);
+
+const onResetSelectedIngredients = () => {
+  selectedIngredients.value = [];
+};
 
 const onWriteOff = () => {
   showConfirm?.(
