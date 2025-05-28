@@ -1,5 +1,6 @@
 <template>
   <div class="flex flex-col gap-y-4">
+    <h1 class="text-2xl font-semibold">Списания МСК-4</h1>
     <section class="flex flex-col gap-y-1">
       <label class="font-semibold">Дата списаний</label>
       <DatePicker
