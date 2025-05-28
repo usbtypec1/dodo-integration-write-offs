@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-y-4">
-    <h1 class="text-2xl font-semibold">Списания МСК-4</h1>
+    <h1 class="text-2xl font-bold">Списания МСК-4</h1>
     <section class="flex flex-col gap-y-1">
       <label class="font-semibold">Дата списаний</label>
       <DatePicker
@@ -98,6 +98,7 @@
       @click="onWriteOff"
     />
     <SecondaryButton :visible="selectedIngredients.length > 0" text="Удалить" />
+    <BackButton @click="navigateTo('index')" />
   </div>
 </template>
 
@@ -107,6 +108,7 @@ import {
   SecondaryButton,
   usePopup,
   useHapticFeedback,
+  BackButton,
 } from "vue-tg";
 import { parseISO, format, differenceInMilliseconds } from "date-fns";
 import type { IngredientWriteOff } from "~/types/write-offs";
@@ -117,7 +119,7 @@ const { notificationOccurred } = useHapticFeedback();
 const { showAlert, showConfirm } = usePopup();
 
 const route = useRoute();
-const departmentId = route.params.id as string;
+const unitId = route.params.id as string;
 
 const isWriteOffDialogVisible = ref<boolean>(false);
 
@@ -178,6 +180,17 @@ const onWriteOff = () => {
       if (!ok) return;
       notificationOccurred?.("success");
       showAlert?.("Ингредиенты успешно списаны");
+    }
+  );
+};
+
+const onRemoveWriteOffs = () => {
+  showConfirm?.(
+    `Вы уверены что хотите удалить ${selectedIngredients.value.length} списаний?`,
+    (ok: boolean) => {
+      if (!ok) return;
+      notificationOccurred?.("success");
+      showAlert?.("Списания успешно удалены");
     }
   );
 };
