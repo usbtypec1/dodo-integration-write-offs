@@ -74,7 +74,11 @@
       v-model:visible="isWriteOffDialogVisible"
       class="mx-4"
     />
-    <MainButton :visible="selectedIngredients.length > 0" text="Списать" />
+    <MainButton
+      :visible="selectedIngredients.length > 0"
+      text="Списать"
+      @click="onWriteOff"
+    />
   </div>
 </template>
 
@@ -127,4 +131,8 @@ const ingredientWriteOffs = computed((): IngredientWriteOff[] => {
 });
 
 const selectedIngredients = ref([]);
+
+const onWriteOff = () => {
+  showAlert?.("Ингредиенты успешно списаны");
+};
 </script>

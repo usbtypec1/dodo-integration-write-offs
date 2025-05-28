@@ -1,11 +1,5 @@
 <template>
-  <Tag v-if="minutesLeft <= 0" value="Просрочка" severity="danger" />
-  <Tag
-    v-else-if="minutesLeft <= 15"
-    :value="`Осталось ${minutesLeft} минут`"
-    severity="warn"
-  />
-  <p v-else>Нет</p>
+  <Tag :value="tagValue" :severity="tagSeverity" />
 </template>
 
 <script setup lang="ts">
@@ -20,5 +14,16 @@ const now = useNow({ interval: 10_000 });
 
 const minutesLeft = computed(() => {
   return differenceInMinutes(props.toWriteOffAt, now.value);
+});
+
+const tagSeverity = computed(() => {
+  if (minutesLeft.value <= 0) return "danger";
+  if (minutesLeft.value <= 15) return "warn";
+  return "success";
+});
+
+const tagValue = computed(() => {
+  if (minutesLeft.value <= 0) return "Просрочка";
+  return `Осталось ${minutesLeft.value} минут`;
 });
 </script>
