@@ -133,20 +133,14 @@ const isToday = useIsToday(date);
 
 const isWrittenOffVisible = ref<boolean>(false);
 
-const { data: ingredients } = await useFetch("/api/ingredients", {
-  transform(data: { ingredients: Ingredient[] }) {
-    return data.ingredients;
-  },
-});
+const { data: ingredients } = await useFetch<Ingredient[]>("/api/ingredients");
 
 const query = computed(() => {
   return {
     date: format(date.value, "yyyy-MM-dd"),
   };
 });
-const { data, refresh, error } = await useFetch<{
-  ingredientWriteOffs: IngredientWriteOff[];
-}>("/api/write-offs", { query });
+const { data, refresh, error } = await useFetch<IngredientWriteOff[]>("/api/write-offs", { query });
 
 useIntervalFn(async () => {
   await refresh();
@@ -164,7 +158,7 @@ const sortByToWriteOffAt = (a: IngredientWriteOff, b: IngredientWriteOff) => {
 };
 
 const ingredientWriteOffs = computed((): IngredientWriteOff[] => {
-  let writeOffs = data.value?.ingredientWriteOffs ?? [];
+  let writeOffs = data.value ?? [];
   if (!isWrittenOffVisible.value) {
     writeOffs = writeOffs.filter((writeOff) => writeOff.writtenOffAt === null);
   }

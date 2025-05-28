@@ -1,7 +1,11 @@
 <template>
   <div>
     <h1 class="text-2xl font-bold mb-4">Выберите точку продаж</h1>
-    <Message v-if="units!.length === 0" severity="warn" icon="pi pi-exclamation-triangle">
+    <Message
+      v-if="units!.length === 0"
+      severity="warn"
+      icon="pi pi-exclamation-triangle"
+    >
       Нет доступных точек продаж
     </Message>
     <section
@@ -25,11 +29,7 @@
 <script setup lang="ts">
 import type { Unit } from "~/types/units";
 
-const { data: units } = await useFetch("/api/units", {
-  transform(data: { units: Unit[] }) {
-    return data.units;
-  },
-});
+const { data: units } = await useFetch<Unit[]>("/api/units");
 watchEffect(async () => {
   if (units.value && units.value.length === 1) {
     await navigateTo({

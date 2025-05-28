@@ -99,6 +99,9 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  runtimeConfig: {
+    apiBaseUrl: process.env.NUXT_API_BASE_URL
+  },
   css: ["~/assets/css/main.css", "primeicons/primeicons.css"],
   ssr: false,
 });

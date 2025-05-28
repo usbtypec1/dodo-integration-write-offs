@@ -1,9 +1,11 @@
-export default defineEventHandler((event) => {
-  const ingredients = [
-    {
-      id: "2c55ad28-4c41-407f-8c93-5809d6cd62c0",
-      name: "Carrots",
-    },
-  ];
-  return { ingredients };
+import { IngredientsResponse } from "~/server/types/ingredients";
+
+export default defineEventHandler(async (event) => {
+  const runtimeConfig = useRuntimeConfig();
+
+  const responseData = await $fetch<IngredientsResponse>("/write-offs/ingredients/", {
+    baseURL: runtimeConfig.apiBaseUrl,
+  });
+
+  return responseData.ingredients.map(({ id, name }) => ({ id, name }));
 });
