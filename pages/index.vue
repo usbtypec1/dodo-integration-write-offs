@@ -26,7 +26,6 @@
           <label for="isWrittenOffVisible" class="font-semibold">
             Показать списанные
           </label>
-
           <ToggleSwitch
             input-id="isWrittenOffVisible"
             v-model="isWrittenOffVisible"
@@ -70,6 +69,11 @@
           />
         </section>
       </template>
+      <template #footer v-if="selectedIngredients.length > 0">
+        <p class="text-start">
+          Выбрано {{ selectedIngredients.length }} ингредиентов
+        </p>
+      </template>
     </DataTable>
     <WriteOffCreateDialog
       v-model:visible="isWriteOffDialogVisible"
@@ -84,12 +88,13 @@
 </template>
 
 <script setup lang="ts">
-import { MainButton, usePopup } from "vue-tg";
+import { MainButton, usePopup, useHapticFeedback } from "vue-tg";
 import { parseISO, format, differenceInMilliseconds } from "date-fns";
 import type { IngredientWriteOff } from "~/types/write-offs";
 import { useIntervalFn } from "@vueuse/core";
 
-const { showAlert } = usePopup();
+const { notificationOccurred } = useHapticFeedback();
+const { showAlert, showConfirm } = usePopup();
 
 const isWriteOffDialogVisible = ref<boolean>(false);
 
@@ -134,6 +139,13 @@ const ingredientWriteOffs = computed((): IngredientWriteOff[] => {
 const selectedIngredients = ref([]);
 
 const onWriteOff = () => {
-  showAlert?.("Ингредиенты успешно списаны");
+  showConfirm?.(
+    `Вы уверены что хотите списать ${selectedIngredients.value.length} ингредиентов?`,
+    (ok: boolean) => {
+      if (!ok) return;
+      notificationOccurred?.("success");
+      showAlert?.("Ингредиенты успешно списаны");
+    }
+  );
 };
 </script>
