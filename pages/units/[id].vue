@@ -102,7 +102,7 @@
       text="Удалить"
       @click="onRemoveWriteOffs"
     />
-    <BackButton @click="navigateTo('index')" />
+    <BackButton @click="navigateTo({ name: 'index' })" />
   </div>
 </template>
 
