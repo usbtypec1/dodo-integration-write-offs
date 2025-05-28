@@ -6,8 +6,9 @@
     :validate-on-submit="true"
     :validate-on-value-update="false"
     class="flex flex-col gap-4 py-2"
+    @submit="onSubmit"
   >
-    <FormField v-slot="$field" name="ingredientName">
+    <FormField v-slot="$field" name="ingredientId">
       <FloatLabel variant="on">
         <Select
           :options="ingredients"
@@ -41,11 +42,17 @@
 </template>
 
 <script lang="ts" setup>
+import type { FormSubmitEvent } from "@primevue/forms/form";
 import { z } from "zod";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import type { Ingredient } from "~/types/ingredients";
+import type { IngredientWriteOffCreateEvent } from "~/types/write-offs";
 
 defineProps<{ ingredients: Ingredient[] }>();
+
+const emit = defineEmits<{
+  submit: [event: IngredientWriteOffCreateEvent];
+}>();
 
 const ingredientIdInputId = useId();
 const toWriteOffAtInputId = useId();
@@ -58,4 +65,10 @@ const resolver = zodResolver(
     }),
   })
 );
+
+const onSubmit = (event: FormSubmitEvent) => {
+  if (!event.valid) return;
+  console.log("[WriteOffCreateForm]: ", event);
+  emit("submit", event.values as IngredientWriteOffCreateEvent);
+};
 </script>

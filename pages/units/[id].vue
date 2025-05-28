@@ -91,6 +91,7 @@
       v-model:visible="isWriteOffDialogVisible"
       class="mx-4"
       :ingredients="ingredients!"
+      @submit="onCreateWriteOff"
     />
     <MainButton
       :visible="selectedIngredients.length > 0"
@@ -115,7 +116,10 @@ import {
   BackButton,
 } from "vue-tg";
 import { parseISO, format, differenceInMilliseconds } from "date-fns";
-import type { IngredientWriteOff } from "~/types/write-offs";
+import type {
+  IngredientWriteOff,
+  IngredientWriteOffCreateEvent,
+} from "~/types/write-offs";
 import { useIntervalFn } from "@vueuse/core";
 import type { Ingredient } from "~/types/ingredients";
 
@@ -140,7 +144,10 @@ const query = computed(() => {
     date: format(date.value, "yyyy-MM-dd"),
   };
 });
-const { data, refresh, error } = await useFetch<IngredientWriteOff[]>("/api/write-offs", { query });
+const { data, refresh, error } = await useFetch<IngredientWriteOff[]>(
+  "/api/write-offs",
+  { query }
+);
 
 useIntervalFn(async () => {
   await refresh();
@@ -191,5 +198,21 @@ const onRemoveWriteOffs = () => {
       showAlert?.("Списания успешно удалены");
     }
   );
+};
+
+const onCreateWriteOff = async (event: IngredientWriteOffCreateEvent) => {
+  try {
+    console.log(event)
+    await $fetch("/api/write-offs", {
+      method: "POST",
+      body: {...event, unitId},
+    });
+    await refresh();
+    notificationOccurred?.("success");
+    showAlert?.("Списание ингредиента успешно запланировано");
+  } catch (error) {
+    notificationOccurred?.("error");
+    showAlert?.("Не удалось создать запланированное списание");
+  }
 };
 </script>

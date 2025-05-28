@@ -5,3 +5,8 @@ export interface IngredientWriteOff {
   writtenOffAt: string | null;
   createdAt: string;
 }
+
+export interface IngredientWriteOffCreateEvent {
+  ingredientId: string;
+  toWriteOffAt: string;
+}
