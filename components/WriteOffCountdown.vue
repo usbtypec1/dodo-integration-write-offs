@@ -16,7 +16,7 @@ const props = defineProps<{
   toWriteOffAt: Date;
 }>();
 
-const now = useNow();
+const now = useNow({ interval: 10_000 });
 
 const minutesLeft = computed(() => {
   return differenceInMinutes(props.toWriteOffAt, now.value);

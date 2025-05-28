@@ -65,18 +65,28 @@
             label="Добавить ингредиент"
             icon="pi pi-plus"
             class="w-full md:w-auto"
+            @click="isWriteOffDialogVisible = true"
           />
         </section>
       </template>
     </DataTable>
+    <WriteOffCreateDialog
+      v-model:visible="isWriteOffDialogVisible"
+      class="mx-4"
+    />
     <MainButton :visible="selectedIngredients.length > 0" text="Списать" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { MainButton } from "vue-tg";
-import { parseISO, format } from "date-fns";
+import { MainButton, usePopup } from "vue-tg";
+import { parseISO, format, differenceInMilliseconds } from "date-fns";
 import type { IngredientWriteOff } from "~/types/write-offs";
+import { useIntervalFn } from "@vueuse/core";
+
+const { showAlert } = usePopup();
+
+const isWriteOffDialogVisible = ref<boolean>(false);
 
 const date = ref<Date>(new Date());
 
@@ -89,19 +99,31 @@ const query = computed(() => {
     date: format(date.value, "yyyy-MM-dd"),
   };
 });
-const { data } = await useFetch<{ ingredientWriteOffs: IngredientWriteOff[] }>(
-  "/api/write-offs",
-  {
-    query,
+const { data, refresh, error } = await useFetch<{
+  ingredientWriteOffs: IngredientWriteOff[];
+}>("/api/write-offs", { query });
+
+useIntervalFn(async () => {
+  await refresh();
+  if (error.value) {
+    console.error("Could not load data:", error.value);
+    showAlert?.("Не удалось загрузить данные");
   }
-);
+}, 30_000);
+
+const sortByToWriteOffAt = (a: IngredientWriteOff, b: IngredientWriteOff) => {
+  const now = new Date();
+  const diffA = Math.abs(differenceInMilliseconds(a.toWriteOffAt, now));
+  const diffB = Math.abs(differenceInMilliseconds(b.toWriteOffAt, now));
+  return diffA - diffB;
+};
 
 const ingredientWriteOffs = computed((): IngredientWriteOff[] => {
   let writeOffs = data.value?.ingredientWriteOffs ?? [];
   if (!isWrittenOffVisible.value) {
     writeOffs = writeOffs.filter((writeOff) => writeOff.writtenOffAt === null);
   }
-  return writeOffs;
+  return writeOffs.toSorted(sortByToWriteOffAt);
 });
 
 const selectedIngredients = ref([]);

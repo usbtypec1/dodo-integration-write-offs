@@ -6,6 +6,12 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
   modules: ["@nuxt/eslint", "@primevue/nuxt-module"],
+  components: [
+    {
+      path: "~/components",
+      pathPrefix: false,
+    },
+  ],
   primevue: {
     options: {
       theme: {
