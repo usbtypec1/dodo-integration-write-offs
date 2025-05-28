@@ -9,8 +9,19 @@
   >
     <FormField v-slot="$field" name="ingredientName">
       <FloatLabel variant="on">
-        <label for="">Ингредиент</label>
-        <InputText fluid />
+        <Select
+          :options="ingredients"
+          filter
+          :filter-fields="['name']"
+          filter-placeholder="Поиск по названию"
+          empty-message="Нет ингредиентов для поиска"
+          empty-filter-message="Ингредиент не найден"
+          option-value="id"
+          option-label="name"
+          :input-id="ingredientIdInputId"
+          fluid
+        />
+        <label :for="ingredientIdInputId">Ингредиент</label>
       </FloatLabel>
       <Message v-if="$field.error" severity="error" variant="simple">
         {{ $field.error.message }}
@@ -18,8 +29,8 @@
     </FormField>
     <FormField v-slot="$field" name="toWriteOffAt">
       <FloatLabel variant="on">
-        <label for="">Время списания</label>
-        <DatePicker time-only fluid />
+        <label :for="toWriteOffAtInputId">Время списания</label>
+        <DatePicker time-only :input-id="toWriteOffAtInputId" fluid />
       </FloatLabel>
       <Message v-if="$field.error" severity="error" variant="simple">
         {{ $field.error.message }}
@@ -32,14 +43,16 @@
 <script lang="ts" setup>
 import { z } from "zod";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
+import type { Ingredient } from "~/types/ingredients";
+
+defineProps<{ ingredients: Ingredient[] }>();
+
+const ingredientIdInputId = useId();
+const toWriteOffAtInputId = useId();
 
 const resolver = zodResolver(
   z.object({
-    ingredientName: z
-      .string({ message: "Введите название ингредиента" })
-      .max(100, {
-        message: "Название ингредиента не может превышать 100 символов",
-      }),
+    ingredientId: z.string({ message: "Выберите ингредиент" }),
     toWriteOffAt: z.date({
       message: "Введите время списания",
     }),

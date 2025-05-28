@@ -78,6 +78,7 @@
     <WriteOffCreateDialog
       v-model:visible="isWriteOffDialogVisible"
       class="mx-4"
+      :ingredients
     />
     <MainButton
       :visible="selectedIngredients.length > 0"
@@ -92,6 +93,7 @@ import { MainButton, usePopup, useHapticFeedback } from "vue-tg";
 import { parseISO, format, differenceInMilliseconds } from "date-fns";
 import type { IngredientWriteOff } from "~/types/write-offs";
 import { useIntervalFn } from "@vueuse/core";
+import type { Ingredient } from "~/types/ingredients";
 
 const { notificationOccurred } = useHapticFeedback();
 const { showAlert, showConfirm } = usePopup();
@@ -103,6 +105,12 @@ const date = ref<Date>(new Date());
 const isToday = useIsToday(date);
 
 const isWrittenOffVisible = ref<boolean>(false);
+
+const { data: ingredients } = await useFetch("/api/ingredients", {
+  transform(data: { ingredients: Ingredient[] }) {
+    return data.ingredients;
+  },
+});
 
 const query = computed(() => {
   return {
