@@ -78,18 +78,24 @@
     <WriteOffCreateDialog
       v-model:visible="isWriteOffDialogVisible"
       class="mx-4"
-      :ingredients
+      :ingredients="ingredients!"
     />
     <MainButton
       :visible="selectedIngredients.length > 0"
       text="Списать"
       @click="onWriteOff"
     />
+    <SecondaryButton :visible="selectedIngredients.length > 0" text="Удалить" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { MainButton, usePopup, useHapticFeedback } from "vue-tg";
+import {
+  MainButton,
+  SecondaryButton,
+  usePopup,
+  useHapticFeedback,
+} from "vue-tg";
 import { parseISO, format, differenceInMilliseconds } from "date-fns";
 import type { IngredientWriteOff } from "~/types/write-offs";
 import { useIntervalFn } from "@vueuse/core";
