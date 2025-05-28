@@ -97,7 +97,11 @@
       text="Списать"
       @click="onWriteOff"
     />
-    <SecondaryButton :visible="selectedIngredients.length > 0" text="Удалить" />
+    <SecondaryButton
+      :visible="selectedIngredients.length > 0"
+      text="Удалить"
+      @click="onRemoveWriteOffs"
+    />
     <BackButton @click="navigateTo('index')" />
   </div>
 </template>
