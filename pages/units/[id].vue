@@ -87,6 +87,10 @@
         </section>
       </template>
     </DataTable>
+    <DevOnly>
+      <Button label="Списать" @click="onWriteOff" />
+      <Button label="Удалить" @click="onRemoveWriteOffs" />
+    </DevOnly>
     <WriteOffCreateDialog
       v-model:visible="isWriteOffDialogVisible"
       class="mx-4"
@@ -181,10 +185,21 @@ const onResetSelectedIngredients = () => {
 const onWriteOff = () => {
   showConfirm?.(
     `Вы уверены что хотите списать ${selectedIngredients.value.length} ингредиентов?`,
-    (ok: boolean) => {
+    async (ok: boolean) => {
       if (!ok) return;
-      notificationOccurred?.("success");
-      showAlert?.("Ингредиенты успешно списаны");
+      try {
+        await $fetch("/api/write-offs/batch-write-off/", {
+          method: "POST",
+          body: { writeOffIds: selectedIngredients.value.map(({ id }) => id) },
+        });
+        await refresh();
+        selectedIngredients.value = []
+        notificationOccurred?.("success");
+        showAlert?.("Ингредиенты списаны");
+      } catch (error) {
+        notificationOccurred?.("error");
+        showAlert?.("Не удалось списать ингредиенты");
+      }
     }
   );
 };
@@ -192,20 +207,31 @@ const onWriteOff = () => {
 const onRemoveWriteOffs = () => {
   showConfirm?.(
     `Вы уверены что хотите удалить ${selectedIngredients.value.length} списаний?`,
-    (ok: boolean) => {
+    async (ok: boolean) => {
       if (!ok) return;
-      notificationOccurred?.("success");
-      showAlert?.("Списания успешно удалены");
+      try {
+        await $fetch("/api/write-offs/batch-delete/", {
+          method: "POST",
+          body: { writeOffIds: selectedIngredients.value.map(({ id }) => id) },
+        });
+        await refresh();
+        selectedIngredients.value = []
+        notificationOccurred?.("success");
+        showAlert?.("Списания успешно удалены");
+      } catch (error) {
+        notificationOccurred?.("error");
+        showAlert?.("Не удалось удалить списания");
+      }
     }
   );
 };
 
 const onCreateWriteOff = async (event: IngredientWriteOffCreateEvent) => {
   try {
-    console.log(event)
+    console.log(event);
     await $fetch("/api/write-offs", {
       method: "POST",
-      body: {...event, unitId},
+      body: { ...event, unitId },
     });
     await refresh();
     notificationOccurred?.("success");
