@@ -11,9 +11,9 @@ const props = defineProps<{
 
 const formattedDate = computed((): string => {
   if (props.date instanceof Date) {
-    return format(props.date, "hh:mm");
+    return format(props.date, "HH:mm");
   } else if (typeof props.date === "string") {
-    return format(parseISO(props.date), "hh:mm");
+    return format(parseISO(props.date), "HH:mm");
   }
   return "Unknown date format";
 });
