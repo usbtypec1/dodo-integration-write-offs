@@ -21,7 +21,13 @@
           option-label="name"
           :input-id="ingredientIdInputId"
           fluid
-        />
+        >
+          <template #option="slotProps">
+            <div class="max-w-64">
+            {{ slotProps.option.name }}
+            </div>
+          </template>
+        </Select>
         <label :for="ingredientIdInputId">Ингредиент</label>
       </FloatLabel>
       <Message v-if="$field.error" severity="error" variant="simple">
