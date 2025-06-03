@@ -27,9 +27,16 @@
 </template>
 
 <script setup lang="ts">
+import { useMiniApp } from 'vue-tg'
 import type { Unit } from "~/types/units";
 
-const { data: units } = await useFetch<Unit[]>("/api/units");
+const { initDataUnsafe } = useMiniApp();
+
+const { data: units } = await useFetch<Unit[]>("/api/units", {
+  query: {
+    userId: initDataUnsafe?.user?.id,
+  }
+});
 watchEffect(async () => {
   if (units.value && units.value.length === 1) {
     await navigateTo({
