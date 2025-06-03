@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const runtimeConfig = useRuntimeConfig();
-  const responseData = await $fetch<UnitsResponse>(`users/${userId}/units/`, {
+  const responseData = await $fetch<UnitsResponse>(`roles/users/${userId}/units/`, {
     baseURL: runtimeConfig.apiBaseUrl,
   });
   return responseData.units.map(({ id, name }) => ({ id, name }));
