@@ -149,6 +149,7 @@ const { data: ingredients } = await useFetch<Ingredient[]>("/api/ingredients");
 const query = computed(() => {
   return {
     date: format(date.value, "yyyy-MM-dd"),
+    unitId,
   };
 });
 const { data, refresh, error } = await useFetch<IngredientWriteOff[]>(
