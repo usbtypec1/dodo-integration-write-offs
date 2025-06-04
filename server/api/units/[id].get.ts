@@ -10,10 +10,13 @@ export default defineEventHandler(async (event) => {
       message: "Unit ID is required to fetch unit details.",
     });
   }
+  const runtimeConfig = useRuntimeConfig();
+  const responseData = await $fetch<{ units: Unit[] }>(`units/`, {
+    baseURL: runtimeConfig.apiBaseUrl,
+  });
+  console.log("Response Data:", responseData);
 
-  const responseData = await $fetch<{ units: Unit[] }>(`units/`);
-
-  const unit = responseData.units.find((unit) => unit.uuid === unitId);
+  const unit = responseData.units.find((unit) => unit.id === Number(unitId));
   if (!unit) {
     throw createError({
       statusCode: 404,
@@ -22,7 +25,7 @@ export default defineEventHandler(async (event) => {
     });
   }
   return {
-    id: unit.uuid,
+    id: unit.id,
     name: unit.name,
   };
 });
