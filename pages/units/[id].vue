@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-y-4">
-    <h1 class="text-2xl font-bold">Списания МСК-4</h1>
+    <h1 class="text-2xl font-bold">Списания {{ unit!.name }}</h1>
     <section class="flex flex-col gap-y-1">
       <label class="font-semibold">Дата списаний</label>
       <DatePicker
@@ -126,12 +126,15 @@ import type {
 } from "~/types/write-offs";
 import { useIntervalFn } from "@vueuse/core";
 import type { Ingredient } from "~/types/ingredients";
+import type { Unit } from "~/types/units";
 
 const { notificationOccurred } = useHapticFeedback();
 const { showAlert, showConfirm } = usePopup();
 
 const route = useRoute();
 const unitId = route.params.id as string;
+
+const { data: unit } = await useFetch<Unit>(`/api/units/${unitId}`);
 
 const isWriteOffDialogVisible = ref<boolean>(false);
 
@@ -193,7 +196,7 @@ const onWriteOff = () => {
           body: { writeOffIds: selectedIngredients.value.map(({ id }) => id) },
         });
         await refresh();
-        selectedIngredients.value = []
+        selectedIngredients.value = [];
         notificationOccurred?.("success");
         showAlert?.("Ингредиенты списаны");
       } catch (error) {
@@ -215,7 +218,7 @@ const onRemoveWriteOffs = () => {
           body: { writeOffIds: selectedIngredients.value.map(({ id }) => id) },
         });
         await refresh();
-        selectedIngredients.value = []
+        selectedIngredients.value = [];
         notificationOccurred?.("success");
         showAlert?.("Списания успешно удалены");
       } catch (error) {
