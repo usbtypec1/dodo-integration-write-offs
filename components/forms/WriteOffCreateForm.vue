@@ -1,30 +1,31 @@
 <template>
   <Form
-    :resolver
-    :validate-on-blur="false"
-    :validate-on-mount="false"
-    :validate-on-submit="true"
-    :validate-on-value-update="false"
-    class="flex flex-col gap-4 py-2"
-    @submit="onSubmit"
+      :resolver
+      :validate-on-blur="false"
+      :validate-on-mount="false"
+      :validate-on-submit="true"
+      :validate-on-value-update="false"
+      class="flex flex-col gap-4 py-2"
+      @submit="onSubmit"
   >
+    <!-- Поле выбора ингредиента -->
     <FormField v-slot="$field" name="ingredientId">
       <FloatLabel variant="on">
         <Select
-          :options="ingredients"
-          filter
-          :filter-fields="['name']"
-          filter-placeholder="Поиск по названию"
-          empty-message="Нет ингредиентов для поиска"
-          empty-filter-message="Ингредиент не найден"
-          option-value="id"
-          option-label="name"
-          :input-id="ingredientIdInputId"
-          fluid
+            :options="ingredients"
+            filter
+            :filter-fields="['name']"
+            filter-placeholder="Поиск по названию"
+            empty-message="Нет ингредиентов для поиска"
+            empty-filter-message="Ингредиент не найден"
+            option-value="id"
+            option-label="name"
+            :input-id="ingredientIdInputId"
+            fluid
         >
           <template #option="slotProps">
             <div class="max-w-64">
-            {{ slotProps.option.name }}
+              {{ slotProps.option.name }}
             </div>
           </template>
         </Select>
@@ -34,15 +35,42 @@
         {{ $field.error.message }}
       </Message>
     </FormField>
-    <FormField v-slot="$field" name="toWriteOffAt">
-      <FloatLabel variant="on">
-        <label :for="toWriteOffAtInputId">Время списания</label>
-        <DatePicker time-only :input-id="toWriteOffAtInputId" fluid />
-      </FloatLabel>
-      <Message v-if="$field.error" severity="error" variant="simple">
-        {{ $field.error.message }}
-      </Message>
-    </FormField>
+
+    <!-- Поля для ввода времени -->
+    <div class="flex gap-2">
+      <FormField v-slot="$field" name="hour">
+        <FloatLabel variant="on">
+          <InputNumber
+              :input-id="hourInputId"
+              fluid
+              :min="0"
+              :max="23"
+              :use-grouping="false"
+          />
+          <label :for="hourInputId">Часы (0–23)</label>
+        </FloatLabel>
+        <Message v-if="$field.error" severity="error" variant="simple">
+          {{ $field.error.message }}
+        </Message>
+      </FormField>
+
+      <FormField v-slot="$field" name="minute">
+        <FloatLabel variant="on">
+          <InputNumber
+              :input-id="minuteInputId"
+              fluid
+              :min="0"
+              :max="59"
+              :use-grouping="false"
+          />
+          <label :for="minuteInputId">Минуты (0–59)</label>
+        </FloatLabel>
+        <Message v-if="$field.error" severity="error" variant="simple">
+          {{ $field.error.message }}
+        </Message>
+      </FormField>
+    </div>
+
     <Button label="Сохранить" type="submit" icon="pi pi-check" />
   </Form>
 </template>
@@ -61,20 +89,43 @@ const emit = defineEmits<{
 }>();
 
 const ingredientIdInputId = useId();
-const toWriteOffAtInputId = useId();
+const hourInputId = useId();
+const minuteInputId = useId();
 
 const resolver = zodResolver(
-  z.object({
-    ingredientId: z.string({ message: "Выберите ингредиент" }),
-    toWriteOffAt: z.date({
-      message: "Введите время списания",
-    }),
-  })
+    z.object({
+      ingredientId: z.string({ message: "Выберите ингредиент" }),
+      hour: z
+          .number({ message: "Введите часы" })
+          .min(0, { message: "Минимум 0" })
+          .max(23, { message: "Максимум 23" }),
+      minute: z
+          .number({ message: "Введите минуты" })
+          .min(0, { message: "Минимум 0" })
+          .max(59, { message: "Максимум 59" }),
+    })
 );
 
 const onSubmit = (event: FormSubmitEvent) => {
   if (!event.valid) return;
-  console.log("[WriteOffCreateForm]: ", event);
-  emit("submit", event.values as IngredientWriteOffCreateEvent);
+
+  const { ingredientId, hour, minute } = event.values;
+
+  // Construct ISO datetime string without timezone (e.g. "2025-10-31T14:30:00")
+  const now = new Date();
+  const isoDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+      2,
+      "0"
+  )}-${String(now.getDate()).padStart(2, "0")}T${String(hour).padStart(
+      2,
+      "0"
+  )}:${String(minute).padStart(2, "0")}:00`;
+
+  console.log("[WriteOffCreateForm emit]:", { ingredientId, toWriteOffAt: isoDate });
+
+  emit("submit", {
+    ingredientId,
+    toWriteOffAt: isoDate,
+  } as IngredientWriteOffCreateEvent);
 };
 </script>
