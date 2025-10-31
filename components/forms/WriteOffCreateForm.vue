@@ -113,13 +113,18 @@ const onSubmit = (event: FormSubmitEvent) => {
 
   // Construct ISO datetime string without timezone (e.g. "2025-10-31T14:30:00")
   const now = new Date();
-  const isoDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
-      2,
-      "0"
-  )}-${String(now.getDate()).padStart(2, "0")}T${String(hour).padStart(
-      2,
-      "0"
-  )}:${String(minute).padStart(2, "0")}:00`;
+
+  // Add 3 hours safely with rollover handling
+  const adjustedDate = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      hour - 3, // Add 3 hours
+      minute,
+      0
+  );
+
+  const isoDate = adjustedDate.toISOString().slice(0, 19); // "YYYY-MM-DDTHH:mm:ss"
 
   console.log("[WriteOffCreateForm emit]:", { ingredientId, toWriteOffAt: isoDate });
 
