@@ -1,5 +1,8 @@
 <template>
   <div>
+    {{units}}
+    {{error}}
+    {{initDataUnsafe}}
     <h1 class="text-2xl font-bold mb-4">Выберите точку продаж</h1>
     <Message
       v-if="units?.length === 0"
@@ -37,16 +40,16 @@ const { data: units, error } = await useFetch<Unit[]>("/api/units", {
     userId: initDataUnsafe?.user?.id,
   },
 });
-watchEffect(async () => {
-  if (error.value) {
-    await navigateTo({
-      name: "user-not-found",
-    });
-  } else if (units.value && units.value.length === 1) {
-    await navigateTo({
-      name: "units-id",
-      params: { id: units.value[0].id },
-    });
-  }
-});
+// watchEffect(async () => {
+//   if (error.value) {
+//     await navigateTo({
+//       name: "user-not-found",
+//     });
+//   } else if (units.value && units.value.length === 1) {
+//     await navigateTo({
+//       name: "units-id",
+//       params: { id: units.value[0].id },
+//     });
+//   }
+// });
 </script>
