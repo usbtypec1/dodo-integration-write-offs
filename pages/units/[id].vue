@@ -232,6 +232,7 @@ const onRemoveWriteOffs = () => {
 };
 
 const onCreateWriteOff = async (event: IngredientWriteOffCreateEvent) => {
+  console.log(event.toWriteOffAt)
   try {
     console.log(event);
     await $fetch("/api/write-offs", {

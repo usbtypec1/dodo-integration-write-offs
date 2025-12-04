@@ -36,9 +36,14 @@
       </Message>
     </FormField>
 
+    <FloatLabel variant="on">
+      <DatePicker v-model="date"  show-week class="w-full sm:w-[30rem]" />
+      <label>Дата</label>
+    </FloatLabel>
+
     <!-- Поля для ввода времени -->
-    <div class="flex gap-2">
-      <FormField v-slot="$field" name="hour">
+    <div class="flex gap-2 justify-between">
+      <FormField v-slot="$field" name="hour" class="grow">
         <FloatLabel variant="on">
           <InputNumber
               :input-id="hourInputId"
@@ -54,7 +59,7 @@
         </Message>
       </FormField>
 
-      <FormField v-slot="$field" name="minute">
+      <FormField v-slot="$field" name="minute" class="grow">
         <FloatLabel variant="on">
           <InputNumber
               :input-id="minuteInputId"
@@ -89,6 +94,8 @@ const emit = defineEmits<{
   search: [ingredientName: string];
 }>();
 
+const date = ref<Date>(new Date());
+
 const ingredientIdInputId = useId();
 const hourInputId = useId();
 const minuteInputId = useId();
@@ -110,28 +117,19 @@ const resolver = zodResolver(
 const onSubmit = (event: FormSubmitEvent) => {
   if (!event.valid) return;
 
-  const { ingredient, hour, minute } = event.values;
+  const year = date.value.getFullYear()
+  const month = (date.value.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.value.getDate().toString().padStart(2, "0");
+  const hour = event.values.hour.toString().padStart(2, "0");
+  const minute = event.values.minute.toString().padStart(2, "0");
 
-  // Construct ISO datetime string without timezone (e.g. "2025-10-31T14:30:00")
-  const now = new Date();
+  const toWriteOffAt = `${year}-${month}-${day}T${hour}:${minute}:00`;
 
-  // Add 3 hours safely with rollover handling
-  const adjustedDate = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      hour - 3, // Add 3 hours
-      minute,
-      0
-  );
-
-  const isoDate = adjustedDate.toISOString().slice(0, 19); // "YYYY-MM-DDTHH:mm:ss"
-
-  console.log("[WriteOffCreateForm emit]:", { ingredientId: ingredient.id, toWriteOffAt: isoDate });
+  console.log("[WriteOffCreateForm emit]:", { ingredientId: event.values.ingredient.id, toWriteOffAt });
 
   emit("submit", {
-    ingredientId: ingredient.id,
-    toWriteOffAt: isoDate,
+    ingredientId: event.values.ingredient.id,
+    toWriteOffAt,
   } as IngredientWriteOffCreateEvent);
 };
 </script>
