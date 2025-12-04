@@ -1,11 +1,9 @@
-import { IngredientsResponse } from "~/server/types/ingredients";
+import type { Ingredient } from "~/server/types/ingredients";
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (_) => {
   const runtimeConfig = useRuntimeConfig();
 
-  const responseData = await $fetch<IngredientsResponse>("/write-offs/ingredients/", {
+  return await $fetch<Ingredient[]>("/write-offs/ingredients/", {
     baseURL: runtimeConfig.apiBaseUrl,
   });
-
-  return responseData.ingredients.map(({ id, name }) => ({ id, name }));
 });
