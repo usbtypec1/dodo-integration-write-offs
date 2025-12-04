@@ -9,26 +9,26 @@
       @submit="onSubmit"
   >
     <!-- Поле выбора ингредиента -->
-    <FormField v-slot="$field" name="ingredientId">
+    <FormField v-slot="$field" name="ingredient">
       <FloatLabel variant="on">
-        <Select
-            :options="ingredients"
+        <AutoComplete
+            :suggestions="ingredients"
             filter
-            :filter-fields="['name']"
-            filter-placeholder="Поиск по названию"
             empty-message="Нет ингредиентов для поиска"
             empty-filter-message="Ингредиент не найден"
-            option-value="id"
             option-label="name"
             :input-id="ingredientIdInputId"
             fluid
+            force-selection
+            :loading="loading"
+            @complete="emit('search', $event.query)"
         >
           <template #option="slotProps">
             <div class="max-w-64">
               {{ slotProps.option.name }}
             </div>
           </template>
-        </Select>
+        </AutoComplete>
         <label :for="ingredientIdInputId">Ингредиент</label>
       </FloatLabel>
       <Message v-if="$field.error" severity="error" variant="simple">
@@ -71,7 +71,7 @@
       </FormField>
     </div>
 
-    <Button label="Сохранить" type="submit" icon="pi pi-check" />
+    <Button label="Сохранить" type="submit" icon="pi pi-check"/>
   </Form>
 </template>
 
@@ -82,10 +82,11 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import type { Ingredient } from "~/types/ingredients";
 import type { IngredientWriteOffCreateEvent } from "~/types/write-offs";
 
-defineProps<{ ingredients: Ingredient[] }>();
+defineProps<{ ingredients: Ingredient[], loading: boolean }>();
 
 const emit = defineEmits<{
   submit: [event: IngredientWriteOffCreateEvent];
+  search: [ingredientName: string];
 }>();
 
 const ingredientIdInputId = useId();
@@ -94,7 +95,7 @@ const minuteInputId = useId();
 
 const resolver = zodResolver(
     z.object({
-      ingredientId: z.string({ message: "Выберите ингредиент" }),
+      ingredient: z.any({ message: "Выберите ингредиент" }),
       hour: z
           .number({ message: "Введите часы" })
           .min(0, { message: "Минимум 0" })
@@ -109,7 +110,7 @@ const resolver = zodResolver(
 const onSubmit = (event: FormSubmitEvent) => {
   if (!event.valid) return;
 
-  const { ingredientId, hour, minute } = event.values;
+  const { ingredient, hour, minute } = event.values;
 
   // Construct ISO datetime string without timezone (e.g. "2025-10-31T14:30:00")
   const now = new Date();
@@ -126,10 +127,10 @@ const onSubmit = (event: FormSubmitEvent) => {
 
   const isoDate = adjustedDate.toISOString().slice(0, 19); // "YYYY-MM-DDTHH:mm:ss"
 
-  console.log("[WriteOffCreateForm emit]:", { ingredientId, toWriteOffAt: isoDate });
+  console.log("[WriteOffCreateForm emit]:", { ingredientId: ingredient.id, toWriteOffAt: isoDate });
 
   emit("submit", {
-    ingredientId,
+    ingredientId: ingredient.id,
     toWriteOffAt: isoDate,
   } as IngredientWriteOffCreateEvent);
 };

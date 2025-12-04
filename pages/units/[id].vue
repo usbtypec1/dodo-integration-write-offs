@@ -4,24 +4,24 @@
     <section class="flex flex-col gap-y-1">
       <label class="font-semibold">Дата списаний</label>
       <DatePicker
-        v-model="date"
-        date-format="dd.mm.yy - DD"
-        class="w-full md:w-64"
+          v-model="date"
+          date-format="dd.mm.yy - DD"
+          class="w-full md:w-64"
       />
     </section>
     <DataTable
-      v-model:selection="selectedIngredients"
-      :value="ingredientWriteOffs"
-      selectionMode="multiple"
-      :metaKeySelection="false"
-      dataKey="id"
+        v-model:selection="selectedIngredients"
+        :value="ingredientWriteOffs"
+        selectionMode="multiple"
+        :metaKeySelection="false"
+        dataKey="id"
     >
       <template #header>
         <section class="flex items-center justify-between md:justify-end gap-2">
           <div class="flex gap-x-4 items-center">
             <i
-              class="pi"
-              :class="[isWrittenOffVisible ? 'pi-eye' : 'pi-eye-slash']"
+                class="pi"
+                :class="[isWrittenOffVisible ? 'pi-eye' : 'pi-eye-slash']"
             >
             </i>
             <label for="isWrittenOffVisible" class="font-semibold">
@@ -30,100 +30,93 @@
           </div>
 
           <ToggleSwitch
-            input-id="isWrittenOffVisible"
-            v-model="isWrittenOffVisible"
+              input-id="isWrittenOffVisible"
+              v-model="isWrittenOffVisible"
           />
         </section>
       </template>
       <template #empty>
         <Message
-          class="flex justify-center items-center"
-          severity="warn"
-          icon="pi pi-exclamation-triangle"
+            class="flex justify-center items-center"
+            severity="warn"
+            icon="pi pi-exclamation-triangle"
         >
           Нет данных
         </Message>
       </template>
-      <Column field="ingredientName" header="Ингредиент" />
+      <Column field="ingredientName" header="Ингредиент"/>
       <Column field="toWriteOffAt" header="Время списания">
         <template #body="{ data }: { data: IngredientWriteOff }">
-          <DateStringToTime :date="data.toWriteOffAt" />
+          <DateStringToTime :date="data.toWriteOffAt"/>
         </template>
       </Column>
       <Column field="isWrittenOff" header="Время списания">
         <template #body="{ data }: { data: IngredientWriteOff }">
           <DateStringToTime
-            v-if="data.writtenOffAt !== null"
-            :date="data.writtenOffAt"
+              v-if="data.writtenOffAt !== null"
+              :date="data.writtenOffAt"
           />
           <WriteOffCountdown
-            v-else
-            :toWriteOffAt="parseISO(data.toWriteOffAt)"
+              v-else
+              :toWriteOffAt="parseISO(data.toWriteOffAt)"
           />
         </template>
       </Column>
       <template #footer v-if="isToday">
         <section class="flex items-center justify-center">
           <Button
-            label="Добавить ингредиент"
-            icon="pi pi-plus"
-            class="w-full md:w-auto"
-            @click="isWriteOffDialogVisible = true"
+              label="Добавить ингредиент"
+              icon="pi pi-plus"
+              class="w-full md:w-auto"
+              @click="isWriteOffDialogVisible = true"
           />
         </section>
       </template>
       <template #footer v-if="selectedIngredients.length > 0">
         <section
-          class="flex md:flex-row flex-col justify-between items-center gap-2"
+            class="flex md:flex-row flex-col justify-between items-center gap-2"
         >
           <span> Выбрано {{ selectedIngredients.length }} ингредиентов </span>
           <Button
-            @click="onResetSelectedIngredients"
-            icon="pi pi-times"
-            label="Сбросить"
-            class="md:w-auto w-full"
-            outlined
+              @click="onResetSelectedIngredients"
+              icon="pi pi-times"
+              label="Сбросить"
+              class="md:w-auto w-full"
+              outlined
           />
         </section>
       </template>
     </DataTable>
     <DevOnly>
-      <Button label="Списать" @click="onWriteOff" />
-      <Button label="Удалить" @click="onRemoveWriteOffs" />
+      <Button label="Списать" @click="onWriteOff"/>
+      <Button label="Удалить" @click="onRemoveWriteOffs"/>
     </DevOnly>
     <WriteOffCreateDialog
-      v-model:visible="isWriteOffDialogVisible"
-      class="mx-4"
-      :ingredients="ingredients!"
-      @submit="onCreateWriteOff"
+        v-model:visible="isWriteOffDialogVisible"
+        class="mx-4"
+        :ingredients="ingredients!"
+        :loading="pending"
+        @submit="onCreateWriteOff"
+        @search="onIngredientNameSearchChange"
     />
     <MainButton
-      :visible="selectedIngredients.length > 0"
-      text="Списать"
-      @click="onWriteOff"
+        :visible="selectedIngredients.length > 0"
+        text="Списать"
+        @click="onWriteOff"
     />
     <SecondaryButton
-      :visible="selectedIngredients.length > 0"
-      text="Удалить"
-      @click="onRemoveWriteOffs"
+        :visible="selectedIngredients.length > 0"
+        text="Удалить"
+        @click="onRemoveWriteOffs"
     />
-    <BackButton @click="navigateTo({ name: 'index' })" />
+    <BackButton @click="navigateTo({ name: 'index' })"/>
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  MainButton,
-  SecondaryButton,
-  usePopup,
-  useHapticFeedback,
-  BackButton,
-} from "vue-tg";
-import { parseISO, format, differenceInMilliseconds } from "date-fns";
-import type {
-  IngredientWriteOff,
-  IngredientWriteOffCreateEvent,
-} from "~/types/write-offs";
+import { BackButton, MainButton, SecondaryButton, useHapticFeedback, usePopup, } from "vue-tg";
+import { differenceInMilliseconds, format, parseISO } from "date-fns";
+import type { IngredientWriteOff, IngredientWriteOffCreateEvent, } from "~/types/write-offs";
 import { useIntervalFn } from "@vueuse/core";
 import type { Ingredient } from "~/types/ingredients";
 import type { Unit } from "~/types/units";
@@ -144,7 +137,15 @@ const isToday = useIsToday(date);
 
 const isWrittenOffVisible = ref<boolean>(false);
 
-const { data: ingredients } = await useFetch<Ingredient[]>("/api/ingredients");
+const ingredientNameSearchParam = ref<string>();
+const onIngredientNameSearchChange = (ingredientName: string) => {
+  ingredientNameSearchParam.value = ingredientName;
+};
+const { data: ingredients, pending } = await useFetch<Ingredient[]>("/api/ingredients", {
+  query: {
+    name: ingredientNameSearchParam,
+  }
+});
 
 const query = computed(() => {
   return {
@@ -153,8 +154,8 @@ const query = computed(() => {
   };
 });
 const { data, refresh, error } = await useFetch<IngredientWriteOff[]>(
-  "/api/write-offs",
-  { query }
+    "/api/write-offs",
+    { query }
 );
 
 useIntervalFn(async () => {
@@ -188,45 +189,45 @@ const onResetSelectedIngredients = () => {
 
 const onWriteOff = () => {
   showConfirm?.(
-    `Вы уверены что хотите списать ${selectedIngredients.value.length} ингредиентов?`,
-    async (ok: boolean) => {
-      if (!ok) return;
-      try {
-        await $fetch("/api/write-offs/batch-write-off/", {
-          method: "POST",
-          body: { writeOffIds: selectedIngredients.value.map(({ id }) => id) },
-        });
-        await refresh();
-        selectedIngredients.value = [];
-        notificationOccurred?.("success");
-        showAlert?.("Ингредиенты списаны");
-      } catch (error) {
-        notificationOccurred?.("error");
-        showAlert?.("Не удалось списать ингредиенты");
+      `Вы уверены что хотите списать ${selectedIngredients.value.length} ингредиентов?`,
+      async (ok: boolean) => {
+        if (!ok) return;
+        try {
+          await $fetch("/api/write-offs/batch-write-off/", {
+            method: "POST",
+            body: { writeOffIds: selectedIngredients.value.map(({ id }) => id) },
+          });
+          await refresh();
+          selectedIngredients.value = [];
+          notificationOccurred?.("success");
+          showAlert?.("Ингредиенты списаны");
+        } catch (error) {
+          notificationOccurred?.("error");
+          showAlert?.("Не удалось списать ингредиенты");
+        }
       }
-    }
   );
 };
 
 const onRemoveWriteOffs = () => {
   showConfirm?.(
-    `Вы уверены что хотите удалить ${selectedIngredients.value.length} списаний?`,
-    async (ok: boolean) => {
-      if (!ok) return;
-      try {
-        await $fetch("/api/write-offs/batch-delete/", {
-          method: "POST",
-          body: { writeOffIds: selectedIngredients.value.map(({ id }) => id) },
-        });
-        await refresh();
-        selectedIngredients.value = [];
-        notificationOccurred?.("success");
-        showAlert?.("Списания успешно удалены");
-      } catch (error) {
-        notificationOccurred?.("error");
-        showAlert?.("Не удалось удалить списания");
+      `Вы уверены что хотите удалить ${selectedIngredients.value.length} списаний?`,
+      async (ok: boolean) => {
+        if (!ok) return;
+        try {
+          await $fetch("/api/write-offs/batch-delete/", {
+            method: "POST",
+            body: { writeOffIds: selectedIngredients.value.map(({ id }) => id) },
+          });
+          await refresh();
+          selectedIngredients.value = [];
+          notificationOccurred?.("success");
+          showAlert?.("Списания успешно удалены");
+        } catch (error) {
+          notificationOccurred?.("error");
+          showAlert?.("Не удалось удалить списания");
+        }
       }
-    }
   );
 };
 
