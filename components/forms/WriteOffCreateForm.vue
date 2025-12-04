@@ -37,7 +37,7 @@
     </FormField>
 
     <FloatLabel variant="on">
-      <DatePicker v-model="date"  show-week class="w-full sm:w-[30rem]" />
+      <DatePicker v-model="date" show-week class="w-full sm:w-[30rem]"/>
       <label>Дата</label>
     </FloatLabel>
 
@@ -117,19 +117,24 @@ const resolver = zodResolver(
 const onSubmit = (event: FormSubmitEvent) => {
   if (!event.valid) return;
 
-  const year = date.value.getFullYear()
-  const month = (date.value.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.value.getDate().toString().padStart(2, "0");
-  const hour = event.values.hour.toString().padStart(2, "0");
-  const minute = event.values.minute.toString().padStart(2, "0");
+  const year = date.value.getFullYear();
+  const month = date.value.getMonth(); // 0-based for Date()
+  const day = date.value.getDate();
 
-  const toWriteOffAt = `${year}-${month}-${day}T${hour}:${minute}:00`;
+  const hour = 15
+  const minute = 30
 
-  console.log("[WriteOffCreateForm emit]:", { ingredientId: event.values.ingredient.id, toWriteOffAt });
+  const toWriteOffAtLocal = new Date(year, month, day, hour, minute, 0);
+  const toWriteOffAtUTC = toWriteOffAtLocal.toISOString().slice(0, 19);
+
+  console.log("[WriteOffCreateForm emit]:", {
+    ingredientId: event.values.ingredient.id,
+    toWriteOffAt: toWriteOffAtUTC
+  });
 
   emit("submit", {
     ingredientId: event.values.ingredient.id,
-    toWriteOffAt,
+    toWriteOffAt: toWriteOffAtUTC,
   } as IngredientWriteOffCreateEvent);
 };
 </script>

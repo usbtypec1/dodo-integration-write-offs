@@ -34,7 +34,7 @@ const { initDataUnsafe } = useMiniApp();
 
 const { data: units, error } = await useFetch<Unit[]>("/api/units", {
   query: {
-    userId: initDataUnsafe?.user?.id,
+    userId: initDataUnsafe?.user?.id ?? 896678539,
   },
 });
 watchEffect(async () => {

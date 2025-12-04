@@ -14,7 +14,6 @@ export default defineEventHandler(async (event) => {
   const responseData = await $fetch<{ units: Unit[] }>(`units/`, {
     baseURL: runtimeConfig.apiBaseUrl,
   });
-  console.log("Response Data:", responseData);
 
   const unit = responseData.units.find((unit) => unit.id === Number(unitId));
   if (!unit) {
