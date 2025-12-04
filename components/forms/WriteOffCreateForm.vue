@@ -121,10 +121,7 @@ const onSubmit = (event: FormSubmitEvent) => {
   const month = date.value.getMonth(); // 0-based for Date()
   const day = date.value.getDate();
 
-  const hour = 15
-  const minute = 30
-
-  const toWriteOffAtLocal = new Date(year, month, day, hour, minute, 0);
+  const toWriteOffAtLocal = new Date(year, month, day, event.values.hour, event.values.minute, 0);
   const toWriteOffAtUTC = toWriteOffAtLocal.toISOString().slice(0, 19);
 
   console.log("[WriteOffCreateForm emit]:", {
